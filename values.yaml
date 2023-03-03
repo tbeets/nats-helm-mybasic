@@ -1,0 +1,61 @@
+# Default values for mynatsbasic
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nats:
+  nats:
+    image: nats:2.9.14-alpine
+    # image: synadia/nats-server:nightly
+    pullPolicy: IfNotPresent
+
+    jetstream:
+      enabled: true
+
+    # Toggle profiling.
+    # This enables nats-server pprof (profiling) port, so you can see goroutines
+    # stacks, memory heap sizes, etc.
+    profiling:
+      enabled: true
+      port: 6000
+
+  cluster:
+    enabled: true
+    replicas: 4
+
+    # FIXME: this should be at client level, internal cluster advertisement okay AFAIK here
+    # disable cluster advertisements when running behind a load balancer
+    noAdvertise: true
+
+  # Authentication setup
+  auth:
+    enabled: true
+
+    systemAccount: SYS
+
+    basic:
+      accounts:
+        SYS:
+          users:
+            - user: System
+              pass: s3cr3t
+        AcctA:
+          jetstream: true
+          users:
+            - user: UserA1
+              pass: s3cr3t
+            - user: UserA2
+              pass: s3cr3t
+        AcctB:
+          jetstream: true
+          users:
+            - user: UserB1
+              pass: s3cr3t
+            - user: UserB2
+              pass: s3cr3t
+        AcctC:
+          jetstream: true
+          users:
+            - user: UserC1
+              pass: s3cr3t
+            - user: UserC2
+              pass: s3cr3t
