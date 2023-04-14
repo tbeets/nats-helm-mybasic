@@ -60,6 +60,59 @@ nats --server "nats://System:s3cr3t@$NATS_URL:4222" server ls
 nats --server "nats://UserA1:s3cr3t@$NATS_URL:4222" str ls
 ```
 
+## Secrets and TLS Setup
+
+###### Client Port TLS
+
+Add this stanza to `values.yaml` to enable TLS on the client port.
+```text
+# values.yaml
+nats:
+  tls:
+    secret:
+      name: nats-client-tls
+    ca: "certfile.pem"
+    cert: "k8s-ext-lb_cert.pem"
+    key: "k8s-ext-lb_keypair.pem"
+```
+
+###### Routes Port TLS
+
+Add this stanza to `values.yaml` to enable TLS on the routes port.
+```text
+# values.yaml
+cluster:
+  enabled: true
+  replicas: 3
+
+  tls:
+    secret:
+      name: nats-server-tls
+    ca: "certfile.pem"
+    cert: "k8s-nats-pod_cert.pem"
+    key: "k8s-nats-pod_keypair.pem"
+```
+
+###### Create k8s secrets (one time and renewal updates)
+```bash
+# For client port TLS
+kubectl create secret generic nats-client-tls \
+--from-file=./vault/nats-client-tls/certfile.pem \
+--from-file=./vault/nats-client-tls/k8s-ext-lb_cert.pem \
+--from-file=./vault/nats-client-tls/k8s-ext-lb_keypair.pem
+
+# For routes port TLS
+kubectl create secret generic nats-server-tls \
+--from-file=./vault/nats-server-tls/certfile.pem \
+--from-file=./vault/nats-server-tls/k8s-nats-pod_cert.pem \
+--from-file=./vault/nats-server-tls/k8s-nats-pod_keypair.pem
+```
+
+###### Validate client connectivity
+```bash
+nats -s "nats://System:s3cr3t@k8s.tinghus.net" --tlsca=./vault/nats-client-tls/certfile.pem server ls
+```
+
 ## See also
 
 - [NATS Helm Chart repo: "Using NATS chart as dependency"](https://github.com/nats-io/k8s/tree/main/helm/charts/nats)

@@ -18,13 +18,25 @@ nats:
       enabled: true
       port: 6000
 
+    tls:
+      secret:
+        name: nats-client-tls
+      ca: "certfile.pem"
+      cert: "k8s-ext-lb_cert.pem"
+      key: "k8s-ext-lb_keypair.pem"
+
   cluster:
     enabled: true
     replicas: 4
 
-    # FIXME: this should be at client level, internal cluster advertisement okay AFAIK here
-    # disable cluster advertisements when running behind a load balancer
     noAdvertise: true
+
+    tls:
+      secret:
+        name: nats-server-tls
+      ca: "certfile.pem"
+      cert: "k8s-nats-pod_cert.pem"
+      key: "k8s-nats-pod_keypair.pem"
 
   # Authentication setup
   auth:
